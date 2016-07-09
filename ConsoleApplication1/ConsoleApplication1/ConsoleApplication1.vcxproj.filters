@@ -15,12 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\Documents\Visual Studio 2015\Projects\ConsoleApplication2\ConsoleApplication2\BST.cpp">
+    <ClCompile Include="BST.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\Documents\Visual Studio 2015\Projects\ConsoleApplication2\ConsoleApplication2\BST.h">
+    <ClInclude Include="BST.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
