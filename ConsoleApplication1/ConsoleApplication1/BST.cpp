@@ -1,56 +1,59 @@
 #include "BST.h"
-
-template<class T, class S>
-void BST<T, S>::insert(T ob, S k) {
-	Node * nw = new Node(ob);
-	Node * temp;
-	LinkedList<T>::iterator iter(this->begin());
-
-	if (pos == 0) {
-		nw->next = this->begin();
-		this->head = nw;
-		size++;
-	}
-	else {
-		iter + (pos - 1);
-		temp = iter->next;
-		nw->next = temp;
-		iter->next = nw;
-		size++;
-	}
-}
-
-template<class T, class S>
-void BST<T, S>::remove(S k) {
-	LinkedList<T>::iterator iter(this->begin());
-	Node* temp;
-	if (pos == 0) {
-		temp = &(*iter);
-		this->head = temp->next;
-		delete temp;
-		size--;
-	}
-	else {
-		iter + (pos - 1);
-		temp = iter->next;
-		iter->next = temp->next;
-		delete temp;
-		size--;
-	}
-}
-
+#include <stdlib.h>     /* srand, rand */
+#include <time.h> 
 
 template<class T, class S>
 BST<T, S>::~BST() {
-	Node * traverse = head;
-	Node * current = head;
-
-	for (int i = 0; i<size; i++) {
-		traverse = current->next;
-		delete current;
-		current = traverse;
-	}
+	delete this->root;
 }
+
+template<class T, class S>
+std::pair<typename BST<T, S>::iterator, bool> BST<T, S>::insert(const value_type & val)
+{
+	Node * nw = new Node(val);
+	BST<T, S>::iterator iter(this->root);
+
+	if (size == 0) {
+		root = nw;
+		iter = nw;
+		std::cout << "insert size 0" << std::endl;
+		size++;
+		return std::make_pair(iter,true);
+	}
+
+	while (true) {
+
+		if (val.second > iter->key)
+			if (iter->right != NULL)
+				iter = iter->right;
+			else {
+				iter->right = nw;
+				nw->parent = &(*iter);
+				iter = nw;
+				size++;
+				std::cout << "insert right" << std::endl;
+				return std::make_pair(iter, true);
+			}
+
+		else if (val.second < iter->key)
+			if (iter->left != NULL)
+				iter = iter->left;
+			else {
+				iter->left = nw;
+				nw->parent = &(*iter);
+				iter = nw;
+				size++;
+				std::cout << "insert left" << std::endl;
+				return std::make_pair(iter, true);
+			}
+		else {
+			delete nw;
+			return std::make_pair(iter, false); // no insertion position of the key
+		}
+	}
+	//return std::make_pair(iter, false);
+}
+
 template <class T, class S>
 std::ostream& operator<< (std::ostream& os, BST<T, S>& link) {
 	os << link.toString();
@@ -63,33 +66,29 @@ std::string BST<T, S>::toString() {
 	BST<T, S>::iterator iter(this->begin());
 
 	os << "{";
-	for (iter = this->begin(); iter != this->end(); iter++) {
-		os << iter->data >> ",";
+	for (iter = this->begin(); iter != this->end(); ++iter) {
+		os << iter->data <<",";
 	}
+	std::streamoff	 pos = os.tellp();
 	if (size != 0)
-		os.seekp(os.tellp() - 1);
+		os.seekp(pos - 1);
 
 	os << "}";
 	return os.str();
 }
 
-template <class T, class S>
-T BST<T, S>::find(S k) {
-	LinkedList<T>::iterator iter(this->begin());
-	iter + pos;
-	return iter->data;
-}
-
 int main(int argc, char* argv[])
 {
-	LinkedList<int> p;
-	for (int i = 1; i<12; i++) {
-		p.push_back(i);
+	srand(time(NULL));
+	BST<int,int> p;
+	int temp;
+	for (int i = 1; i<=20; i++) {
+		temp = rand() % 20 + i;
+		if (!p.insert(std::make_pair(i, temp)).second)
+			std::cout << "the key "<<temp<<" already exists" << std::endl;
+		else
+			std::cout << "inserting key " << temp << std::endl;
 	}
-	std::cout << p.get(4) << std::endl;
-	std::cout << p << std::endl;
-	p.insert(121, 1);
-	p.remove(5);
 	std::cout << p << std::endl;
 	return 0;
 }
