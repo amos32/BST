@@ -43,58 +43,92 @@ template<class T, class S>
 void BST<T, S>::erase(typename BST<T, S>::iterator iter) {
 	if (iter->left == NULL && iter->right == NULL) { // no children
 		Node * temp = iter->parent;
-		if (temp->left == &(*iter))
+		if (iter->parent == NULL) { // its the root
+			temp = &(*iter);
+			delete temp;
+			root = NULL;
+			iter = root;
+			size--;
+			return;
+		}
+		else {
+			if (temp->left == &(*iter))//its a left child
+				temp->left = NULL;
+			else
+				temp->right = NULL; //its a right child
+
+			temp = &(*iter);
+			iter = iter->parent;
 			temp->left = NULL;
-		else
 			temp->right = NULL;
-		
-		temp = &(*iter);
-		iter = iter->parent;
-		temp->left = NULL;
-		temp->right = NULL;
-		temp->parent = NULL;
-		delete temp;
-		size--;
-		return;
+			temp->parent = NULL;
+			delete temp;
+			size--;
+			return;
+		}
 	}
 	if (iter->right == NULL ) { // only a left child
 		Node * temp = iter->parent; 
-		if (temp->left == &(*iter))
-			temp->left = iter->left;
-		else
-			temp->right = iter->left;
+		if (temp != NULL) {
+			if (temp->left == &(*iter))
+				temp->left = iter->left;
+			else
+				temp->right = iter->left;
 
-		Node * temp2 = iter->left;
-		temp2->parent = temp;
-		temp = &(*iter);
-		iter = iter->left;
-		temp->left = NULL;
-		temp->right = NULL;
-		temp->parent = NULL;
-		delete temp;
-		size--;
-		return;
+			Node * temp2 = iter->left;
+			temp2->parent = temp;
+			temp = &(*iter);
+			iter = iter->left;
+			temp->left = NULL;
+			temp->right = NULL;
+			temp->parent = NULL;
+			delete temp;
+			size--;
+			return;
+		}
+		else { //its the root
+			root = iter->left;
+			iter->left = NULL;
+			root->parent = NULL;
+			temp = &(*iter);
+			iter = root;
+			delete temp;
+			size--;
+			return;
+		}
 	}
 	if (iter->left == NULL) { // only a right child
 		Node * temp = iter->parent;
-		if (temp->left == &(*iter))
-			temp->left = iter->right;
-		else
-			temp->right = iter->right;
+		if (temp != NULL) {
+			if (temp->left == &(*iter))
+				temp->left = iter->right;
+			else
+				temp->right = iter->right;
 
-		Node * temp2 = iter->right;
-		temp2->parent = temp;
-		temp = &(*iter);
-		iter = iter->right;
-		temp->left = NULL;
-		temp->right = NULL;
-		temp->parent = NULL;
-		delete temp;
-		size--;
-		return;
+			Node * temp2 = iter->right;
+			temp2->parent = temp;
+			temp = &(*iter);
+			iter = iter->right;
+			temp->left = NULL;
+			temp->right = NULL;
+			temp->parent = NULL;
+			delete temp;
+			size--;
+			return;
+		}
+		else { // its the root
+			root = iter->right;
+			root->parent = NULL;
+			iter->right = NULL;
+			temp = &(*iter);
+			iter = root;
+			delete temp;
+			size--;
+			return;
+		}
 	}
 
-	// both children
+	// both children, we dont need to handle root
 	Node * temp = iter->right;
 	while (temp->left != NULL)
 		temp = temp->left;
@@ -103,11 +137,17 @@ void BST<T, S>::erase(typename BST<T, S>::iterator iter) {
 	iter->key = temp->key;
 	Node *temp2;
 	temp2 = temp->parent;
-	if (temp2->left == temp)
-		temp2->left = NULL;
-	else
-		temp2->right = NULL;
-	temp->left = NULL;
+	if (temp2->left == temp) {
+		temp2->left = temp->right;
+		if (temp->right != NULL)
+			temp->right->parent = temp2;
+	}
+	else {
+		temp2->right = temp->right; // select right subtree
+		if(temp->right!=NULL)
+			temp->right->parent = temp2;
+	}
+	temp->left = NULL;	// the destructor is recursive, you need to null the connections
 	temp->right = NULL;
 	delete temp; //remove node
 	size--;
@@ -203,7 +243,7 @@ int main(int argc, char* argv[])
 	srand(time(NULL));
 	BST<int,int> p;
 	int temp;
-	for (int i = 1; i<=20; i++) {
+	for (int i = 1; i<=10; i++) {
 		temp = rand() % 20 + i;
 		if (!p.insert(std::make_pair(i, temp)).second)
 			std::cout << "the key "<<temp<<" already exists" << std::endl;
