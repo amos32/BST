@@ -36,6 +36,7 @@ public:
 		typedef std::forward_iterator_tag iterator_category;
 		typedef int difference_type;
 		iterator(pointer ptr) : traverse(ptr) { }
+		iterator() {}
 		self_type operator++(int);
 		self_type& operator++() {
 			if (traverse->right != NULL) { // if you can go right go
@@ -72,9 +73,9 @@ public:
 	BST() : root(NULL), leftMost(NULL), size(0) {};
 	~BST();
 	std::pair<typename BST<T,S>::iterator, bool> insert(const value_type& val); // return false if the key already exists and the iterator points to the new element or the key location
-	void erase(S k);
+	int erase(const S& k);
 	void erase(typename BST<T, S>::iterator it);
-	typename BST<T, S>::iterator find(S k);
+	typename BST<T, S>::iterator find(const S& k);
 
 	Node * begin() {
 		Node * temp = root;
