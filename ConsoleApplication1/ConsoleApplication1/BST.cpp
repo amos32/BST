@@ -222,7 +222,7 @@ std::string BST<T, S>::toString() {
 	BST<T, S>::iterator iter(this->begin());
 
 	os << "{";
-	for (iter = this->begin(); iter != this->end(); ++iter) {
+	for (iter = this->begin(); iter != this->end(); iter++) {
 		if (iter->left != NULL)
 			os << iter->left->key << "<-";
 		os << iter->key;
@@ -238,23 +238,63 @@ std::string BST<T, S>::toString() {
 	return os.str();
 }
 
+template <class T,class S>
+void BST<T, S>::RightRotation(typename BST<T, S>::iterator iter) {
+	Node * temp = iter->left; //pivot P 
+	iter->left = temp->right; // Q takes right subtree of pivot on left
+	if(temp->right!=NULL)
+		temp->right->parent = &(*iter); // assign parent
+	temp->parent = iter->parent; // change the parent of pivot
+	if (iter->parent != NULL) { // if not null
+		if (iter->parent->right == &(*iter))
+			iter->parent->right = temp; //set child
+		else
+			iter->parent->left = temp;
+	}
+	else // its the root node
+		root = temp;
+	temp->right = &(*iter); // attach Q to the pivot
+	iter->parent = temp; // reassign parent
+	iter = temp; //move iterator
+}
+
+template <class T, class S>
+void BST<T, S>::LeftRotation(typename BST<T, S>::iterator iter) {
+	Node * temp = iter->right; //pivot Q 
+	iter->right = temp->left; // P takes right subtree of pivot on right
+	if (temp->left != NULL)
+		temp->left->parent = &(*iter); // assign parent
+	temp->parent = iter->parent; // change the parent of pivot
+	if (iter->parent != NULL) { // if not null
+		if (iter->parent->right == &(*iter))
+			iter->parent->right = temp; //set child
+		else
+			iter->parent->left = temp;
+	}
+	else // its the root node
+		root = temp;
+	temp->left = &(*iter); // attach Q to the pivot
+	iter->parent = temp; // reassign parent
+	iter = temp; //move iterator
+}
+
 int main(int argc, char* argv[])
 {
-	srand(time(NULL));
+	srand((unsigned int) time(NULL));
 	BST<int,int> p;
 	int temp;
 	for (int i = 1; i<=10; i++) {
-		temp = rand() % 20 + i;
+		temp = rand() % 50 + i;
 		if (!p.insert(std::make_pair(i, temp)).second)
 			std::cout << "the key "<<temp<<" already exists" << std::endl;
 		else
 			std::cout << "inserting key " << temp << std::endl;
 	}
 	std::cout << p << std::endl;
-	std::cout << "erase one node" << std::endl;
+	std::cout << "rotate one node" << std::endl;
 	int nod;
 	std::cin >> nod;
-	p.erase(nod);
+	p.LeftRotation(p.find(nod));
 	std::cout << p << std::endl;
 	return 0;
 }
